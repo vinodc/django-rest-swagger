@@ -46,7 +46,7 @@
       console.log("key: " + key);
       if(key && key.trim() != "") {
         console.log("added key " + key);
-        window.authorizations.add("key", new ApiKeyAuthorization("Authorization", "Token " + key, "header"));
+        window.authorizations.add("key", new ApiKeyAuthorization("Authorization", "{{ swagger_settings.auth_scheme }} " + key, "header"));
       }
     })
     {% if swagger_settings.api_key %}
