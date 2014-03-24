@@ -13,7 +13,6 @@ from rest_framework_swagger.docgenerator import DocumentationGenerator
 
 from rest_framework_swagger import SWAGGER_SETTINGS
 
-
 class SwaggerUIView(View):
 
     def get(self, request, *args, **kwargs):
@@ -21,7 +20,8 @@ class SwaggerUIView(View):
         if not self.has_permission(request):
             raise PermissionDenied()
 
-        template_name = "rest_framework_swagger/index.html"
+        template_name = SWAGGER_SETTINGS.get('template_path',
+                'rest_framework_swagger/index.html')
         data = {
             'swagger_settings': {
                 'discovery_url': "%sapi-docs/" % request.build_absolute_uri(),
