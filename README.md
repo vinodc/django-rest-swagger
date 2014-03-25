@@ -62,6 +62,8 @@ SWAGGER_SETTINGS = {
         'delete'
     ],
     "api_key": '', # An API key
+    "auth_scheme": 'Token', # Authorization method specified in header.
+    "discovery_url": '', # Resource listing URL. By default, <path-to-swagger-docs>/api-docs
     "is_authenticated": False,  # Set to True to enforce user authentication,
     "is_superuser": False,  # Set to True to enforce admin only access
 }
