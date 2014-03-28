@@ -11,7 +11,7 @@ from .introspectors import APIViewIntrospector, \
 class DocumentationGenerator(object):
     def generate(self, apis):
         """
-        Returns documentaion for a list of APIs
+        Returns documentation for a list of APIs
         """
         api_docs = []
         for api in apis:
@@ -39,15 +39,21 @@ class DocumentationGenerator(object):
             introspector = APIViewIntrospector(callback, path, pattern)
 
         for method_introspector in introspector:
+
+            """
             if not isinstance(method_introspector, BaseMethodIntrospector) or \
                     method_introspector.get_http_method() == "OPTIONS":
                 continue  # No one cares. I impose JSON.
+            """
 
-            serializer = method_introspector.get_serializer_class()
+            http_method = method_introspector.get_http_method()
+            serializer = method_introspector.get_response_class()
+            if isinstance(serializer, dict):
+                serializer = serializer[http_method]
             serializer_name = IntrospectorHelper.get_serializer_name(serializer)
 
             operation = {
-                'httpMethod': method_introspector.get_http_method(),
+                'httpMethod': http_method,
                 'summary': method_introspector.get_summary(),
                 'nickname': method_introspector.get_nickname(),
                 'notes': method_introspector.get_notes(),
@@ -89,9 +95,29 @@ class DocumentationGenerator(object):
         serializers = set()
 
         for api in apis:
-            serializer = self._get_serializer_class(api['callback'])
-            if serializer is not None:
-                serializers.add(serializer)
+            path = api['path']
+            pattern = api['pattern']
+            callback = api['callback']
+            callback.request = HttpRequest()
+
+            if issubclass(callback, viewsets.ViewSetMixin):
+                introspector = ViewSetIntrospector(callback, path, pattern)
+            else:
+                introspector = APIViewIntrospector(callback, path, pattern)
+
+            for method_introspector in introspector:
+                http_method = method_introspector.get_http_method()
+                serializer = method_introspector.get_serializer_class()
+                if isinstance(serializer, dict):
+                    serializer = serializer[http_method]
+                if serializer is not None:
+                    serializers.add(serializer)
+
+                responseSerializer = method_introspector.get_response_class()
+                if isinstance(responseSerializer, dict):
+                    responseSerializer = responseSerializer[http_method]
+                if responseSerializer is not None:
+                    serializers.add(responseSerializer)
 
         return serializers
 
@@ -120,7 +146,3 @@ class DocumentationGenerator(object):
             }
 
         return data
-
-    def _get_serializer_class(self, callback):
-        if hasattr(callback, 'get_serializer_class'):
-            return callback().get_serializer_class()

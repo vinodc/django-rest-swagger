@@ -71,6 +71,10 @@ class BaseViewIntrospector(object):
         if hasattr(self.callback, 'get_serializer_class'):
             return self.callback().get_serializer_class()
 
+    def get_response_class(self):
+        if hasattr(self.callback, 'get_response_class'):
+            return self.callback().get_response_class()
+
     def get_description(self):
         """
         Returns the first sentence of the first line of the class docstring
@@ -89,6 +93,9 @@ class BaseMethodIntrospector(object):
 
     def get_serializer_class(self):
         return self.parent.get_serializer_class()
+
+    def get_response_class(self):
+        return self.parent.get_response_class()
 
     def get_summary(self):
         docs = self.get_docs()
@@ -169,7 +176,10 @@ class BaseMethodIntrospector(object):
         return getattr(self.callback, method).__doc__
 
     def build_body_parameters(self):
+        http_method = self.get_http_method()
         serializer = self.get_serializer_class()
+        if isinstance(serializer, dict):
+            serializer = serializer[http_method]
         serializer_name = IntrospectorHelper.get_serializer_name(serializer)
 
         if serializer_name is None:
@@ -203,7 +213,10 @@ class BaseMethodIntrospector(object):
         Builds form parameters from the serializer class
         """
         data = []
+        http_method = self.get_http_method()
         serializer = self.get_serializer_class()
+        if isinstance(serializer, dict):
+            serializer = serializer[http_method]
 
         if serializer is None:
             return data

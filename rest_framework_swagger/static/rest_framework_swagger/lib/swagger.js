@@ -970,7 +970,8 @@
             _results = [];
             for (_i = 0, _len = _ref.length; _i < _len; _i++) {
               param = _ref[_i];
-              if (type.toLowerCase() === "file") {
+              if (type.toLowerCase() === "file upload" ||
+                  type.toLowerCase() === "image upload") {
                 _results.push(param);
               }
             }
@@ -1037,6 +1038,32 @@
           urlEncoded += encodeURIComponent(key) + '=' + encodeURIComponent(value);
         }
         body = urlEncoded;
+      } else if (requestContentType && requestContentType.indexOf("multipart/form-data") === 0) {
+        var boundary = '---------------------------' + Math.floor(Math.random()*32768) + Math.floor(Math.random()*32768) + Math.floor(Math.random()*32768);
+        requestContentType = 'multipart/form-data; boundary=' + boundary;
+        var fd = '';
+        for (key in params) {
+          if (key !== 'headers') {
+            if (key == 'file') {
+              if (theFile) {
+                fd += '--' + boundary + '\r\n' + 'Content-Disposition: form-data; name="';
+                fd += key;
+                fd += '"; filename="';
+                fd += theFileName;
+                fd += '"\r\n\r\n';
+                fd += theFile;
+              }
+            } else {
+              fd += '--' + boundary + '\r\n' + 'Content-Disposition: form-data; name="';
+              fd += key;
+              fd += '"\r\n\r\n';
+              fd += params[key];
+            }
+            fd += '\r\n'
+          }
+        }
+        fd += '--' + boundary + '--\r\n';
+        body = fd;
       }
       for (name in headers) {
         myHeaders[name] = headers[name];
