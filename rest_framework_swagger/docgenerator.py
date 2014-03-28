@@ -49,9 +49,12 @@ class DocumentationGenerator(object):
             introspector = APIViewIntrospector(callback, path, pattern)
 
         for method_introspector in introspector:
+
+            """
             if not isinstance(method_introspector, BaseMethodIntrospector) or \
                     method_introspector.get_http_method() == "OPTIONS":
                 continue  # No one cares. I impose JSON.
+            """
 
             doc_parser = YAMLDocstringParser(
                 docstring=method_introspector.get_docs())
@@ -62,7 +65,15 @@ class DocumentationGenerator(object):
             response_type = self._get_method_response_type(
                 doc_parser, serializer, introspector, method_introspector)
 
+"""
+            http_method = method_introspector.get_http_method()
+            serializer = method_introspector.get_response_class()
+            if isinstance(serializer, dict):
+                serializer = serializer[http_method]
+            serializer_name = IntrospectorHelper.get_serializer_name(serializer)
+"""
             operation = {
+                # 'method': http_method,
                 'method': method_introspector.get_http_method(),
                 'summary': method_introspector.get_summary(),
                 'nickname': method_introspector.get_nickname(),
@@ -216,9 +227,29 @@ class DocumentationGenerator(object):
         serializers = set()
 
         for api in apis:
-            serializer = self._get_serializer_class(api['callback'])
-            if serializer is not None:
-                serializers.add(serializer)
+            path = api['path']
+            pattern = api['pattern']
+            callback = api['callback']
+            callback.request = HttpRequest()
+
+            if issubclass(callback, viewsets.ViewSetMixin):
+                introspector = ViewSetIntrospector(callback, path, pattern)
+            else:
+                introspector = APIViewIntrospector(callback, path, pattern)
+
+            for method_introspector in introspector:
+                http_method = method_introspector.get_http_method()
+                serializer = method_introspector.get_serializer_class()
+                if isinstance(serializer, dict):
+                    serializer = serializer[http_method]
+                if serializer is not None:
+                    serializers.add(serializer)
+
+                responseSerializer = method_introspector.get_response_class()
+                if isinstance(responseSerializer, dict):
+                    responseSerializer = responseSerializer[http_method]
+                if responseSerializer is not None:
+                    serializers.add(responseSerializer)
 
         return serializers
 
