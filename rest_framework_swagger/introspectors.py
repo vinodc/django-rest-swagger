@@ -71,6 +71,10 @@ class BaseViewIntrospector(object):
         if hasattr(self.callback, 'get_serializer_class'):
             return self.callback().get_serializer_class()
 
+    def get_request_class(self):
+        if hasattr(self.callback, 'get_request_class'):
+            return self.callback().get_request_class()
+
     def get_response_class(self):
         if hasattr(self.callback, 'get_response_class'):
             return self.callback().get_response_class()
@@ -93,6 +97,9 @@ class BaseMethodIntrospector(object):
 
     def get_serializer_class(self):
         return self.parent.get_serializer_class()
+
+    def get_request_class(self):
+        return self.parent.get_request_class()
 
     def get_response_class(self):
         return self.parent.get_response_class()
@@ -176,10 +183,18 @@ class BaseMethodIntrospector(object):
         return getattr(self.callback, method).__doc__
 
     def build_body_parameters(self):
-        http_method = self.get_http_method()
-        serializer = self.get_serializer_class()
-        if isinstance(serializer, dict):
-            serializer = serializer[http_method]
+        """
+        If a specific request class is provided, use it, otherwise
+        default back to serializer class.  Don't modify serializer
+        class since other methods depend on it.
+        """
+        if self.get_request_class() is None:
+            serializer = self.get_serializer_class()
+        else:
+            http_method = self.get_http_method()
+            serializer = self.get_request_class()
+            if isinstance(serializer, dict):
+                serializer = serializer[http_method]
         serializer_name = IntrospectorHelper.get_serializer_name(serializer)
 
         if serializer_name is None:
@@ -211,12 +226,19 @@ class BaseMethodIntrospector(object):
     def build_form_parameters(self):
         """
         Builds form parameters from the serializer class
+
+        If a specific request class is provided, use it, otherwise
+        default back to serializer class.  Don't modify serializer
+        class since other methods depend on it.
         """
         data = []
-        http_method = self.get_http_method()
-        serializer = self.get_serializer_class()
-        if isinstance(serializer, dict):
-            serializer = serializer[http_method]
+        if self.get_request_class() is None:
+            serializer = self.get_serializer_class()
+        else:
+            http_method = self.get_http_method()
+            serializer = self.get_request_class()
+            if isinstance(serializer, dict):
+                serializer = serializer[http_method]
 
         if serializer is None:
             return data

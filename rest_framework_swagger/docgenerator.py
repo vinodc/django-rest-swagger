@@ -26,6 +26,12 @@ class DocumentationGenerator(object):
     def get_operations(self, api):
         """
         Returns docs for the allowed methods of an API endpoint
+
+        If a request class is provided, use it, otherwise default back to
+        serializer class.  Don't modify serializer class because DRF depends on it.
+
+        If a response class is provided, use it, otherwise default back to
+        serializer class.  Don't modify serializer class because DRF depends on it.
         """
         operations = []
         path = api['path']
@@ -46,10 +52,14 @@ class DocumentationGenerator(object):
                 continue  # No one cares. I impose JSON.
             """
 
-            http_method = method_introspector.get_http_method()
-            serializer = method_introspector.get_response_class()
-            if isinstance(serializer, dict):
-                serializer = serializer[http_method]
+            # check if there's a response serializer class
+            if method_introspector.get_response_class() is None:
+                serializer = method_introspector.get_serializer_class()
+            else:
+                http_method = method_introspector.get_http_method()
+                serializer = method_introspector.get_response_class()
+                if isinstance(serializer, dict):
+                    serializer = serializer[http_method]
             serializer_name = IntrospectorHelper.get_serializer_name(serializer)
 
             operation = {
@@ -91,6 +101,12 @@ class DocumentationGenerator(object):
         """
         Returns a set of serializer classes for a provided list
         of APIs
+
+        If a request class is provided, use it, otherwise default back to
+        serializer class.  Don't modify serializer class because DRF depends on it.
+
+        If a response class is provided, use it, otherwise default back to
+        serializer class.  Don't modify serializer class because DRF depends on it.
         """
         serializers = set()
 
@@ -100,6 +116,11 @@ class DocumentationGenerator(object):
             callback = api['callback']
             callback.request = HttpRequest()
 
+            # default serializer
+            serializer = self._get_serializer_class(callback)
+            if serializer is not None:
+                serializers.add(serializer)
+
             if issubclass(callback, viewsets.ViewSetMixin):
                 introspector = ViewSetIntrospector(callback, path, pattern)
             else:
@@ -107,17 +128,14 @@ class DocumentationGenerator(object):
 
             for method_introspector in introspector:
                 http_method = method_introspector.get_http_method()
-                serializer = method_introspector.get_serializer_class()
-                if isinstance(serializer, dict):
-                    serializer = serializer[http_method]
-                if serializer is not None:
-                    serializers.add(serializer)
 
-                responseSerializer = method_introspector.get_response_class()
-                if isinstance(responseSerializer, dict):
-                    responseSerializer = responseSerializer[http_method]
-                if responseSerializer is not None:
-                    serializers.add(responseSerializer)
+                for method_name in ['get_request_class', 'get_response_class']:
+                    method_to_call = getattr(method_introspector, method_name)
+                    serializer = method_to_call()
+                    if isinstance(serializer, dict):
+                        serializer = serializer[http_method]
+                    if serializer is not None:
+                        serializers.add(serializer)
 
         return serializers
 
@@ -146,3 +164,7 @@ class DocumentationGenerator(object):
             }
 
         return data
+
+    def _get_serializer_class(self, callback):
+        if hasattr(callback, 'get_serializer_class'):
+            return callback().get_serializer_class()
