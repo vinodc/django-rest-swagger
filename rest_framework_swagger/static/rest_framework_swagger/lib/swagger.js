@@ -1050,7 +1050,7 @@
                 fd += key;
                 fd += '"; filename="';
                 fd += theFileName;
-                fd += '"\r\n\r\n';
+                fd += '"\r\nContent-Type: application/octet-stream\r\n\r\n';
                 fd += theFile;
               }
             } else {
