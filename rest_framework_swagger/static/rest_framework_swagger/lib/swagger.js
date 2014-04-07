@@ -1050,7 +1050,8 @@
                 fd += key;
                 fd += '"; filename="';
                 fd += theFileName;
-                fd += '"\r\nContent-Type: application/octet-stream\r\n\r\n';
+                fd += '"\r\nContent-Type: application/octet-stream\r\n';
+                fd += 'Content-transfer-encoding: base64\r\n\r\n';
                 fd += theFile;
               }
             } else {
