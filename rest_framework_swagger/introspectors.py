@@ -310,6 +310,13 @@ class BaseMethodIntrospector(object):
 
             data.append(f)
 
+        # method_docs = self.get_docs()
+        # if method_docs is not None:
+        #     docstring += '\n' + method_docs
+
+        # if docstring is None:
+        #     return params
+
         return data
 
 
