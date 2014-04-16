@@ -280,6 +280,10 @@ class BaseMethodIntrospector(object):
         docstring = self.retrieve_docstring() if None else ''
         docstring += "\n" + get_view_description(self.callback)
 
+        method_docs = self.get_docs()
+        if method_docs is not None:
+            docstring += '\n' + method_docs
+
         if docstring is None:
             return params
 
