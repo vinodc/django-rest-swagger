@@ -62,7 +62,6 @@ class DocumentationGenerator(object):
                 continue  # No one cares. I impose JSON.
             """
 
-<<<<<<< HEAD
             doc_parser = YAMLDocstringParser(
                 docstring=method_introspector.get_docs())
 
@@ -77,7 +76,6 @@ class DocumentationGenerator(object):
             serializer = method_introspector.get_response_class()
             if isinstance(serializer, dict):
                 serializer = serializer[http_method]
-=======
             # check if there's a response serializer class
             if method_introspector.get_response_class() is None:
                 serializer = method_introspector.get_serializer_class()
@@ -86,7 +84,6 @@ class DocumentationGenerator(object):
                 serializer = method_introspector.get_response_class()
                 if isinstance(serializer, dict):
                     serializer = serializer[http_method]
->>>>>>> Bugfix: adding back in default behavior, and moving serializer to
             serializer_name = IntrospectorHelper.get_serializer_name(serializer)
 """
             operation = {

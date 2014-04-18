@@ -310,6 +310,14 @@ class BaseMethodIntrospector(object):
 
             data.append(f)
 
+        for line in split_lines:
+            param = line.split(' -- ')
+            if len(param) == 3:
+                params.append({'paramType': 'query',
+                               'name': param[0].strip(),
+                               'description': param[1].strip(),
+                               'dataType': param[2].strip()})
+
         # method_docs = self.get_docs()
         # if method_docs is not None:
         #     docstring += '\n' + method_docs
