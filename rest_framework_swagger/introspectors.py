@@ -291,11 +291,11 @@ class BaseMethodIntrospector(object):
 
         for line in split_lines:
             param = line.split(' -- ')
-            if len(param) == 2:
+            if len(param) == 3:
                 params.append({'paramType': 'query',
                                'name': param[0].strip(),
                                'description': param[1].strip(),
-                               'dataType': ''})
+                               'dataType': param[2].strip()})
 
         return params
 
