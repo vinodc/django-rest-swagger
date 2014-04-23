@@ -925,6 +925,7 @@
       this.errorCallback = errorCallback;
       this.operation = operation;
       this.execution = execution;
+
       if (this.type == null) {
         throw "SwaggerRequest type is required (get/post/put/delete).";
       }
@@ -963,13 +964,13 @@
           }
           return _results;
         }).call(this)).length > 0) {
-          type = param.type || param.dataType;
           if (((function() {
             var _i, _len, _ref, _results;
             _ref = this.operation.parameters;
             _results = [];
             for (_i = 0, _len = _ref.length; _i < _len; _i++) {
               param = _ref[_i];
+              type = param.type || param.dataType;
               if (type.toLowerCase() === "file upload" ||
                   type.toLowerCase() === "image upload") {
                 _results.push(param);
