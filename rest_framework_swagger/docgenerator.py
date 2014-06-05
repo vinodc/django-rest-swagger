@@ -52,23 +52,28 @@ class DocumentationGenerator(object):
                 continue  # No one cares. I impose JSON.
             """
 
+            http_method = method_introspector.get_http_method()
+
             # check if there's a response serializer class
-            if method_introspector.get_response_class() is None:
+            serializer = None
+            response_class = method_introspector.get_response_class()
+            if response_class is None:
                 serializer = method_introspector.get_serializer_class()
-            else:
-                http_method = method_introspector.get_http_method()
+            elif response_class != '':
                 serializer = method_introspector.get_response_class()
                 if isinstance(serializer, dict):
                     serializer = serializer[http_method]
-            serializer_name = IntrospectorHelper.get_serializer_name(serializer)
 
             operation = {
                 'httpMethod': http_method,
                 'summary': method_introspector.get_summary(),
                 'nickname': method_introspector.get_nickname(),
                 'notes': method_introspector.get_notes(),
-                'responseClass': serializer_name,
             }
+
+            if serializer:
+                serializer_name = IntrospectorHelper.get_serializer_name(serializer)
+                operation['responseClass'] = serializer_name
 
             parameters = method_introspector.get_parameters()
             if len(parameters) > 0:
@@ -118,7 +123,7 @@ class DocumentationGenerator(object):
 
             # default serializer
             serializer = self._get_serializer_class(callback)
-            if serializer is not None:
+            if serializer:
                 serializers.add(serializer)
 
             if issubclass(callback, viewsets.ViewSetMixin):
@@ -134,7 +139,7 @@ class DocumentationGenerator(object):
                     serializer = method_to_call()
                     if isinstance(serializer, dict):
                         serializer = serializer[http_method]
-                    if serializer is not None:
+                    if serializer:
                         serializers.add(serializer)
 
         return serializers
@@ -143,7 +148,7 @@ class DocumentationGenerator(object):
         """
         Returns serializer fields in the Swagger MODEL format
         """
-        if serializer is None:
+        if not serializer:
             return
 
         fields = serializer().get_fields()
