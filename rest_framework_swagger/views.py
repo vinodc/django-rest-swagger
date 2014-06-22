@@ -91,4 +91,5 @@ class SwaggerApiView(APIDocView):
 
     def get_api_for_resource(self, filter_path):
         urlparser = UrlParser()
-        return urlparser.get_apis(filter_path=filter_path)
+        return urlparser.get_apis(filter_path=filter_path,
+                exclude_namespaces=SWAGGER_SETTINGS.get('exclude_namespaces'))
