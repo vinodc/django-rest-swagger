@@ -33,6 +33,7 @@ setup(
         'django>=1.5',
         'djangorestframework>=2.3.5',
         'PyYAML>=3.10',
+        'six',
     ],
 
     url='http://github.com/marcgibbons',
