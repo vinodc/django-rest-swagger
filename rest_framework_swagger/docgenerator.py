@@ -85,7 +85,6 @@ class DocumentationGenerator(object):
             serializer_name = IntrospectorHelper.get_serializer_name(serializer)
 """
             operation = {
-                # 'method': http_method,
                 'method': method_introspector.get_http_method(),
                 'summary': method_introspector.get_summary(),
                 'nickname': method_introspector.get_nickname(),
