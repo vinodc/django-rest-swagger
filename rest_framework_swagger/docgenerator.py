@@ -71,19 +71,6 @@ class DocumentationGenerator(object):
             response_type = self._get_method_response_type(
                 doc_parser, serializer, introspector, method_introspector)
 
-"""
-            http_method = method_introspector.get_http_method()
-            # check if there's a response serializer class
-            serializer = None
-            response_class = method_introspector.get_response_class()
-            if response_class is None:
-                serializer = method_introspector.get_serializer_class()
-            elif response_class != '':
-                serializer = method_introspector.get_response_class()
-                if isinstance(serializer, dict):
-                    serializer = serializer[http_method]
-            serializer_name = IntrospectorHelper.get_serializer_name(serializer)
-"""
             operation = {
                 'method': method_introspector.get_http_method(),
                 'summary': method_introspector.get_summary(),
@@ -100,14 +87,25 @@ class DocumentationGenerator(object):
             parameters = doc_parser.discover_parameters(
                 inspector=method_introspector)
 
-"""
+            """
+            http_method = method_introspector.get_http_method()
+            # check if there's a response serializer class
+            serializer = None
+            response_class = method_introspector.get_response_class()
+            if response_class is None:
+                serializer = method_introspector.get_serializer_class()
+            elif response_class != '':
+                serializer = method_introspector.get_response_class()
+                if isinstance(serializer, dict):
+                    serializer = serializer[http_method]
+            serializer_name = IntrospectorHelper.get_serializer_name(serializer)
             if serializer:
                 serializer_name = IntrospectorHelper.get_serializer_name(serializer)
                 operation['responseClass'] = serializer_name
 
             parameters = method_introspector.get_parameters()
             if len(parameters) > 0:
-"""
+            """
 
             if parameters:
                 operation['parameters'] = parameters
