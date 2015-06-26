@@ -215,6 +215,8 @@ class BaseMethodIntrospector(object):
         default back to serializer class.  Don't modify serializer
         class since other methods depend on it.
         """
+        serializer = self.get_serializer_class()
+        """
         if self.get_request_class() is None:
             serializer = self.get_serializer_class()
         else:
@@ -222,6 +224,7 @@ class BaseMethodIntrospector(object):
             serializer = self.get_request_class()
             if isinstance(serializer, dict):
                 serializer = serializer[http_method]
+        """
         serializer_name = IntrospectorHelper.get_serializer_name(serializer)
 
         if serializer_name is None:
@@ -259,13 +262,14 @@ class BaseMethodIntrospector(object):
         class since other methods depend on it.
         """
         data = []
-        if self.get_request_class() is None:
-            serializer = self.get_serializer_class()
-        else:
-            http_method = self.get_http_method()
-            serializer = self.get_request_class()
-            if isinstance(serializer, dict):
-                serializer = serializer[http_method]
+        serializer = self.get_serializer_class()
+        # if self.get_request_class() is None:
+        #     serializer = self.get_serializer_class()
+        # else:
+        #     http_method = self.get_http_method()
+        #     serializer = self.get_request_class()
+        #     if isinstance(serializer, dict):
+        #         serializer = serializer[http_method]
 
         if serializer is None:
             return data
