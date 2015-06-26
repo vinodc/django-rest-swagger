@@ -260,7 +260,7 @@ class DocumentationGenerator(object):
             serializer = self._get_serializer_class(callback)
             if serializer:
                 serializers.add(serializer)
-
+            """
             if issubclass(callback, viewsets.ViewSetMixin):
                 introspector = ViewSetIntrospector(callback, path, pattern)
             else:
@@ -276,6 +276,7 @@ class DocumentationGenerator(object):
                         serializer = serializer[http_method]
                     if serializer:
                         serializers.add(serializer)
+            """
 
         return serializers
 
