@@ -1072,6 +1072,7 @@ var SwaggerRequest = function(type, url, params, opts, successCallback, errorCal
     }
     body = encoded;
   } else if (requestContentType && requestContentType.indexOf("multipart/form-data") === 0) {
+    /*
     var boundary = '---------------------------' + Math.floor(Math.random()*32768) + Math.floor(Math.random()*32768) + Math.floor(Math.random()*32768);
     requestContentType = 'multipart/form-data; boundary=' + boundary;
     var fd = '';
@@ -1098,6 +1099,7 @@ var SwaggerRequest = function(type, url, params, opts, successCallback, errorCal
     }
     fd += '--' + boundary + '--\r\n';
     body = fd;
+    */
   }
   var name;
   for (name in this.headers)
