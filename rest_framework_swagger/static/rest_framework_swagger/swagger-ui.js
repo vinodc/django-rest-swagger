@@ -1941,23 +1941,26 @@ helpers = this.merge(helpers, Handlebars.helpers); data = data || {};
       headers = response.headers;
       contentType = headers && headers["Content-Type"] ? headers["Content-Type"].split(";")[0].trim() : null;
       if (!content) {
-        code = $('<code />').text("no content");
-        pre = $('<pre class="json" />').append(code);
+        code = $('<code class="no-highlight" />').text("no content");
+        pre = $('<pre />').append(code);
       } else if (contentType === "application/json" || /\+json$/.test(contentType)) {
-        code = $('<code />').text(JSON.stringify(JSON.parse(content), null, "  "));
-        pre = $('<pre class="json" />').append(code);
+        code = $('<code class="json" />').text(JSON.stringify(JSON.parse(content), null, "  "));
+        pre = $('<pre />').append(code);
       } else if (contentType === "application/xml" || /\+xml$/.test(contentType)) {
-        code = $('<code />').text(this.formatXml(content));
-        pre = $('<pre class="xml" />').append(code);
-      } else if (contentType === "text/html") {
-        code = $('<code />').html(content);
-        pre = $('<pre class="xml" />').append(code);
+        code = $('<code class="xml" />').text(this.formatXml(content));
+        pre = $('<pre />').append(code);
+      } else if (contentType.indexOf("text/html") === 0) {
+        code = $('<code class="xml" />').text(content);
+        pre = $('<pre />').append(code);
       } else if (/^image\//.test(contentType)) {
-        pre = $('<img>').attr('src', url);
+        code = $('<code class="no-highlight" />').text(content);
+        pre = $('<pre />').append(code);
       } else {
-        code = $('<code />').text(content);
-        pre = $('<pre class="json" />').append(code);
+        code = $('<code class="no-highlight" />').text(content);
+        pre = $('<pre />').append(code);
       }
+      if (content && content.length > 100000)
+        code.attr('class', 'no-highlight')
       response_body = pre;
       $(".request_url", $(this.el)).html("<pre>" + url + "</pre>");
       $(".response_code", $(this.el)).html("<pre>" + response.status + " " + response.statusText + "</pre>");
@@ -1966,7 +1969,9 @@ helpers = this.merge(helpers, Handlebars.helpers); data = data || {};
       $(".response", $(this.el)).slideDown();
       $(".response_hider", $(this.el)).show();
       $(".response_throbber", $(this.el)).hide();
-      return hljs.highlightBlock($('.response_body', $(this.el))[0]);
+
+      var block = $('.response_body pre > code', $(this.el))[0];
+      return hljs.highlightBlock(block);
     };
 
     OperationView.prototype.toggleOperationContent = function() {
